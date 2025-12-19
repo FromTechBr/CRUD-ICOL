@@ -17,7 +17,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Desabilita proteção contra ataques CSRF (necessário para APIs REST funcionarem sem token)
+            .csrf(csrf -> csrf.disable()) // Desabilita proteção contra ataques CSRF
             .authorizeHttpRequests(auth -> auth
                 .anyRequest().permitAll() // PERMITE TUDO: Libera acesso a todas as rotas sem login
             );
