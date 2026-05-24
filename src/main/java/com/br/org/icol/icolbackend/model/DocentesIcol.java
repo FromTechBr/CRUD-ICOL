@@ -2,26 +2,31 @@ package com.br.org.icol.icolbackend.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
+import java.util.List;
 
 @Data
 @Entity
 @Table(name="docentes_icol")
+@ToString(exclude="turmas")
+@EqualsAndHashCode(exclude="turmas")
 public class DocentesIcol {
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
 
-    // Relacionamento 1:1 com Usuário (Login)
-    // Um docente tem um usuário de acesso exclusivo
-    @OneToOne
-    @JoinColumn(name="usuario_id", nullable = false, unique = true)
+    @OneToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="usuario_id", nullable=false, unique=true)
     private UsuariosIcol usuario;
 
     @Column(nullable=false)
     private String nomeCompleto;
 
-    // Campo opcional sugerido para diferenciar (Ex: Matemática, TI, Artes)
     @Column(nullable=true)
-    private String especializacao; 
+    private String especializacao;
+
+    @OneToMany(mappedBy="docente", cascade=CascadeType.ALL, orphanRemoval=true)
+    private List<TurmasIcol> turmas;
 }

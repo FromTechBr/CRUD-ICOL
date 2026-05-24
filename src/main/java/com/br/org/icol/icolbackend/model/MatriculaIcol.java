@@ -2,19 +2,17 @@ package com.br.org.icol.icolbackend.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
 import java.time.*;
+import java.util.List;
 import com.br.org.icol.icolbackend.enums.StatusMatricula;
-
-/*● Propósito: Associar um aluno a uma turma específica, formalizando a
-inscrição.
-● Colunas: id (Chave Primária), aluno_id (Chave Estrangeira para
-Alunos.id), turma_id (Chave Estrangeira para Turmas.id), data_matricula
-(DATE), status (ENUM: 'Pendente', 'Aprovada', 'Recusada').
- */
 
 @Data
 @Entity
 @Table(name="matricula_icol")
+@ToString(exclude="frequencias")
+@EqualsAndHashCode(exclude="frequencias")
 public class MatriculaIcol {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -27,11 +25,14 @@ public class MatriculaIcol {
     @Column(nullable=false)
     private StatusMatricula statusMatricula;
 
-    @ManyToOne
-    @JoinColumn(name="aluno_id")
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="aluno_id", nullable=false)
     private AlunosIcol alunoMatrId;
 
-    @ManyToOne
-    @JoinColumn(name="turma_id")
-    private TurmasIcol turmaMatrId; 
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="turma_id", nullable=false)
+    private TurmasIcol turmaMatrId;
+
+    @OneToMany(mappedBy="matriculaId", cascade=CascadeType.ALL, orphanRemoval=true)
+    private List<FrequenciaIcol> frequencias;
 }

@@ -2,10 +2,15 @@ package com.br.org.icol.icolbackend.model;
 import com.br.org.icol.icolbackend.enums.TiposCursos;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
+import java.util.List;
 
 @Data
 @Entity
 @Table(name="cursos_icol")
+@ToString(exclude="turmas")
+@EqualsAndHashCode(exclude="turmas")
 public class CursosIcol {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -23,5 +28,7 @@ public class CursosIcol {
     @Enumerated(EnumType.STRING)
     @Column(nullable=false)
     private TiposCursos categoria;
-    
+
+    @OneToMany(mappedBy="curso", cascade=CascadeType.ALL, orphanRemoval=true)
+    private List<TurmasIcol> turmas;
 }

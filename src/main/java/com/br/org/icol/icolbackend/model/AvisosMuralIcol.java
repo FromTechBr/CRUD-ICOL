@@ -4,12 +4,6 @@ import java.time.*;
 import jakarta.persistence.*;
 import lombok.Data;
 
-/*● Propósito: Armazenar os posts e comunicados do mural de
-informações.
-● Colunas: id (Chave Primária), autor_id (Chave Estrangeira para
-Usuarios.id), titulo (TEXT), conteudo (TEXT), data_postagem
-(TIMESTAMP). */
-
 @Data
 @Entity
 @Table(name="avisos_mural")
@@ -18,8 +12,8 @@ public class AvisosMuralIcol {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name="usuario_id")
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="usuario_id", nullable=false)
     private UsuariosIcol autorId;
 
     @Column(nullable=false)

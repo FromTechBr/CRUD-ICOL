@@ -7,12 +7,6 @@ import com.br.org.icol.icolbackend.enums.StatusPresenca;
 import jakarta.persistence.*;
 import lombok.Data;
 
-/*● Propósito: Registrar a presença e as faltas dos alunos em cada aula.
-● Colunas: id (Chave Primária), matricula_id (Chave Estrangeira para
-Matriculas.id), data_aula (DATE), status_presenca (ENUM: 'Presente',
-'Ausente'), justificativa (TEXT, opcional).
- */
-
 @Data
 @Entity
 @Table(name="frequencia_icol")
@@ -30,7 +24,7 @@ public class FrequenciaIcol {
     @Column(nullable=false)
     private StatusPresenca statusPresenca;
 
-    @ManyToOne
-    @JoinColumn(name="matricula_id")
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="matricula_id", nullable=false)
     private MatriculaIcol matriculaId;
 }

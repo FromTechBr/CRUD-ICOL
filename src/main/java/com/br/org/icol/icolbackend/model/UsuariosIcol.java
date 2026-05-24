@@ -2,19 +2,16 @@ package com.br.org.icol.icolbackend.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
 import com.br.org.icol.icolbackend.enums.TiposUsuario;
-
-/*● Propósito: Armazenar os dados de login para todos os tipos de
-usuários (Alunos, Professores, Coordenadoras).
-PRD
-PRODUCT REQUIREMENTS DOCUMENT
-● Colunas: id (Chave Primária), email (TEXT, único), senha (TEXT),
-tipo_usuario (ENUM: 'Aluno', 'Professor', 'Coordenadora').
- */
+import java.util.List;
 
 @Data
 @Entity
 @Table(name="usuarios_icol")
+@ToString(exclude={"alunos", "docentes", "avisos"})
+@EqualsAndHashCode(exclude={"alunos", "docentes", "avisos"})
 public class UsuariosIcol {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -30,4 +27,13 @@ public class UsuariosIcol {
     @Enumerated(EnumType.STRING)
     @Column(nullable=false)
     private TiposUsuario tipoUsuario;
+
+    @OneToMany(mappedBy="usuario", cascade=CascadeType.ALL, orphanRemoval=true)
+    private List<AlunosIcol> alunos;
+
+    @OneToOne(mappedBy="usuario", cascade=CascadeType.ALL, orphanRemoval=true)
+    private DocentesIcol docentes;
+
+    @OneToMany(mappedBy="autorId", cascade=CascadeType.ALL, orphanRemoval=true)
+    private List<AvisosMuralIcol> avisos;
 }
