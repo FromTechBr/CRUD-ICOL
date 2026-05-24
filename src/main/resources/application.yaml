@@ -7,9 +7,9 @@ spring:
   # CONFIGURAÇÕES DO BANCO DE DADOS
   # ===============================
   datasource:
-    url: jdbc:postgresql://localhost:5432/icol_db
-    username: postgres
-    password: adm123
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/icol_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   # ===============================
@@ -39,5 +39,6 @@ server:
 # CONFIGURAÇÕES DE SEGURANÇA (JWT)
 # ===============================
 jwt:
-  secret: 4f5a8substituaporumachavesecretalongadeverdade9d2c1
-  expiration: 86400000
+  # O valor padrão foi removido por segurança. Ele DEVE ser passado pelo ambiente.
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:86400000}
