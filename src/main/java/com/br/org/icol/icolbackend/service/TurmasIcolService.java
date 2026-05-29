@@ -1,16 +1,16 @@
 package com.br.org.icol.icolbackend.service;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.br.org.icol.icolbackend.exception.RequisicaoNaoEncontrada;
+import com.br.org.icol.icolbackend.model.CursosIcol;
+import com.br.org.icol.icolbackend.model.DocentesIcol;
+import com.br.org.icol.icolbackend.model.TurmasIcol;
 import com.br.org.icol.icolbackend.repository.CursosIcolRepositorio;
 import com.br.org.icol.icolbackend.repository.DocentesIcolRepositorio;
 import com.br.org.icol.icolbackend.repository.TurmasIcolRepositorio;
-import com.br.org.icol.icolbackend.model.TurmasIcol;
-import com.br.org.icol.icolbackend.model.CursosIcol;
-import com.br.org.icol.icolbackend.model.DocentesIcol;
-import com.br.org.icol.icolbackend.exception.RequisicaoNaoEncontrada;
-import com.br.org.icol.icolbackend.enums.StatusTurma;
-import org.springframework.stereotype.Service;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TurmasIcolService {
