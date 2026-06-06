@@ -3,6 +3,7 @@ package com.br.org.icol.icolbackend.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.br.org.icol.icolbackend.exception.RequisicaoNaoEncontrada;
 import com.br.org.icol.icolbackend.model.CursosIcol;
@@ -13,6 +14,7 @@ import com.br.org.icol.icolbackend.repository.DocentesIcolRepositorio;
 import com.br.org.icol.icolbackend.repository.TurmasIcolRepositorio;
 
 @Service
+@Transactional
 public class TurmasIcolService {
     private final TurmasIcolRepositorio repoTurmas;
     private final DocentesIcolRepositorio repoDocentes;

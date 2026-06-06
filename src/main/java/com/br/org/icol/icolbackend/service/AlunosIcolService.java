@@ -1,6 +1,7 @@
 package com.br.org.icol.icolbackend.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.br.org.icol.icolbackend.model.AlunosIcol;
 import com.br.org.icol.icolbackend.model.UsuariosIcol;
 import com.br.org.icol.icolbackend.repository.AlunosIcolRepositorio;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class AlunosIcolService {
 
     private final AlunosIcolRepositorio repoAlunos;

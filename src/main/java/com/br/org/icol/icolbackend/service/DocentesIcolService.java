@@ -6,10 +6,12 @@ import com.br.org.icol.icolbackend.model.UsuariosIcol;
 import com.br.org.icol.icolbackend.repository.DocentesIcolRepositorio;
 import com.br.org.icol.icolbackend.repository.UsuariosIcolRepositorio;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class DocentesIcolService {
 
     private final DocentesIcolRepositorio repoDocentes;

@@ -6,9 +6,11 @@ import com.br.org.icol.icolbackend.model.MatriculaIcol;
 import com.br.org.icol.icolbackend.repository.FrequenciaIcolRepositorio;
 import com.br.org.icol.icolbackend.repository.MatriculaIcolRepositorio;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@Transactional
 public class FrequenciaIcolService {
     
     private final FrequenciaIcolRepositorio repoFrequencia;

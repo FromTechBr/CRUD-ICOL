@@ -8,9 +8,11 @@ import com.br.org.icol.icolbackend.repository.MatriculaIcolRepositorio;
 import com.br.org.icol.icolbackend.repository.AlunosIcolRepositorio;
 import com.br.org.icol.icolbackend.repository.TurmasIcolRepositorio;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@Transactional
 public class MatriculaIcolService {
     
     private final MatriculaIcolRepositorio repoMatricula;

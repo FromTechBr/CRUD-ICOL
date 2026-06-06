@@ -1,6 +1,7 @@
 package com.br.org.icol.icolbackend.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.br.org.icol.icolbackend.exception.RequisicaoNaoEncontrada;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class UsuariosIcolService {
     private final UsuariosIcolRepositorio repoUsuarios; //declaro que a variavel repo é do tipo repositorio e que ele quem vai receber as informações para od
     private final PasswordEncoder passwordEncoder;
