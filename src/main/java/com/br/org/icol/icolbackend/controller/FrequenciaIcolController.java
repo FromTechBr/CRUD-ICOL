@@ -42,9 +42,5 @@ public class FrequenciaIcolController {
         return ResponseEntity.ok(atualizado);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        servicoFrequencia.deletar(id);
-        return ResponseEntity.noContent().build();
-    }
+    // DELETE endpoint removido para proteger o histórico (Regra 6)
 }

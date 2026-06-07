@@ -25,8 +25,11 @@ public class DocentesIcol {
     @Column(nullable=false)
     private String nomeCompleto;
 
-    @Column(nullable=true)
+    @Column(nullable=false)
     private String especializacao;
+
+    @Column(nullable=false)
+    private Boolean ativo = true;
 
     @JsonIgnore
     @OneToMany(mappedBy="docente", cascade=CascadeType.ALL, orphanRemoval=true)

@@ -6,5 +6,5 @@ import com.br.org.icol.icolbackend.model.FrequenciaIcol;
 
 @Repository
 public interface FrequenciaIcolRepositorio extends JpaRepository<FrequenciaIcol, Long>{
-    
+    boolean existsByMatriculaIdAndDataAula(com.br.org.icol.icolbackend.model.MatriculaIcol matricula, java.time.LocalDate dataAula);
 }

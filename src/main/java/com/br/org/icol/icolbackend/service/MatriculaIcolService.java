@@ -1,6 +1,7 @@
 package com.br.org.icol.icolbackend.service;
 
 import com.br.org.icol.icolbackend.exception.RequisicaoNaoEncontrada;
+import com.br.org.icol.icolbackend.exception.RequisicaoInvalida;
 import com.br.org.icol.icolbackend.model.AlunosIcol;
 import com.br.org.icol.icolbackend.model.MatriculaIcol;
 import com.br.org.icol.icolbackend.model.TurmasIcol;
@@ -71,6 +72,17 @@ public class MatriculaIcolService {
         
         TurmasIcol turmaExistente = repoTurmas.findById(dto.getTurmaId())
                 .orElseThrow(()-> new RequisicaoNaoEncontrada("Turma não encontrada."));
+        
+        // Regra 3: Evitar Matriculas Duplicadas
+        if(repoMatricula.existsByAlunoMatrIdAndTurmaMatrId(alunoExistente, turmaExistente)){
+            throw new RequisicaoInvalida("Este aluno já possui matrícula nesta turma.");
+        }
+
+        // Regra 2: Capacidade da Turma
+        long matriculasAtivas = repoMatricula.countByTurmaMatrIdAndStatusMatricula(turmaExistente, com.br.org.icol.icolbackend.enums.StatusMatricula.APROVADA);
+        if(matriculasAtivas >= turmaExistente.getNumMaxAlunos()){
+            throw new RequisicaoInvalida("A turma selecionada já atingiu a capacidade máxima de alunos.");
+        }
         
         MatriculaIcol matriculaCadastrar = new MatriculaIcol();
         matriculaCadastrar.setStatusMatricula(dto.getStatusMatricula());

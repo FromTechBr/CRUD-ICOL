@@ -36,6 +36,7 @@ public class TurmasIcolService {
         dto.setStatusTurma(entidade.getStatusTurma());
         dto.setNumMaxAlunos(entidade.getNumMaxAlunos());
         dto.setCronogramaHorarios(entidade.getCronogramaHorarios());
+        dto.setAtivo(entidade.getAtivo());
         
         if (entidade.getCurso() != null) {
             dto.setCursoId(entidade.getCurso().getId());
@@ -52,11 +53,11 @@ public class TurmasIcolService {
 
     // Método auxiliar para buscar a entidade internamente
     public TurmasIcol buscarEntidade(Long id){
-        return repoTurmas.findById(id).orElseThrow(()-> new RequisicaoNaoEncontrada("Não foi possivel encontrar turma com ID: "+id));
+        return repoTurmas.findByIdAndAtivo(id).orElseThrow(()-> new RequisicaoNaoEncontrada("Não foi possivel encontrar turma com ID: "+id));
     }
 
     public List<TurmaResponseDTO> listar(){
-        return repoTurmas.findAll().stream()
+        return repoTurmas.findAllAtivos().stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
@@ -78,6 +79,7 @@ public class TurmasIcolService {
         turmaCadastrar.setCronogramaHorarios(dto.getCronogramaHorarios());
         turmaCadastrar.setCurso(cursoExistente);
         turmaCadastrar.setDocente(docenteExistente);
+        turmaCadastrar.setAtivo(true);
         
         TurmasIcol salvo = repoTurmas.save(turmaCadastrar);
         return toDTO(salvo);
@@ -94,11 +96,10 @@ public class TurmasIcolService {
         return toDTO(salvo);
     }
 
-    public void deletar(Long id){
-        if(!repoTurmas.existsById(id)){
-            throw new RequisicaoNaoEncontrada("Turma não encontrada para exclusão.");
-        }
-        repoTurmas.deleteById(id);
+    public void inativar(Long id){
+        TurmasIcol turmaInativar = buscarEntidade(id);
+        turmaInativar.setAtivo(false);
+        repoTurmas.save(turmaInativar);
     }
 }
 

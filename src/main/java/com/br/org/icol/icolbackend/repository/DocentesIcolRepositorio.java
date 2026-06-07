@@ -10,10 +10,21 @@ import java.util.Optional;
 
 @Repository
 public interface DocentesIcolRepositorio extends JpaRepository<DocentesIcol, Long> {
-    // Busca docente pelo nome (para validação ou pesquisa)
-    Optional<DocentesIcol> findByNomeCompleto(String nomeCompleto);
+    // Busca docente pelo nome (para validação ou pesquisa) apenas se ativo
+    @Query("SELECT d FROM DocentesIcol d WHERE d.nomeCompleto = :nomeCompleto AND d.ativo = true")
+    Optional<DocentesIcol> findByNomeCompleto(@Param("nomeCompleto") String nomeCompleto);
     
-    // Busca docente pelo ID do usuário vinculado (útil para login)
-    @Query("SELECT d FROM DocentesIcol d WHERE d.usuario.id = :usuarioId")
+    // Busca docente pelo ID do usuário vinculado (útil para login) apenas se ativo
+    @Query("SELECT d FROM DocentesIcol d WHERE d.usuario.id = :usuarioId AND d.ativo = true")
     Optional<DocentesIcol> findByUsuario(@Param("usuarioId") Long usuarioId);
+
+    // Lista todos os docentes ativos
+    @Query("SELECT d FROM DocentesIcol d WHERE d.ativo = true ORDER BY d.nomeCompleto ASC")
+    java.util.List<DocentesIcol> findAllAtivos();
+    
+    // Busca docente por ID apenas se ativo
+    @Query("SELECT d FROM DocentesIcol d WHERE d.id = :id AND d.ativo = true")
+    Optional<DocentesIcol> findByIdAndAtivo(@Param("id") Long id);
+
+    boolean existsByUsuario_Id(Long usuarioId);
 }

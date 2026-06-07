@@ -9,6 +9,7 @@ public class TurmaResponseDTO {
     private StatusTurma statusTurma;
     private int numMaxAlunos;
     private String cronogramaHorarios;
+    private Boolean ativo;
     private Long cursoId;
     private String nomeCurso;
     private Long docenteId;

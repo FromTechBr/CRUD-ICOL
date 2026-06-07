@@ -44,7 +44,7 @@ public class TurmasIcolController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        servicoTurmas.deletar(id);
+        servicoTurmas.inativar(id);
         return ResponseEntity.noContent().build();
     }
 }

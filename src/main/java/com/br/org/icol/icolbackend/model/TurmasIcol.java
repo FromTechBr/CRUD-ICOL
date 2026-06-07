@@ -51,6 +51,9 @@ public class TurmasIcol {
     @Column(nullable=false)
     private String cronogramaHorarios;
 
+    @Column(nullable=false)
+    private Boolean ativo = true;
+
     @JsonIgnore
     @OneToMany(mappedBy="turmaMatrId", cascade=CascadeType.ALL, orphanRemoval=true)
     private List<MatriculaIcol> matriculas;

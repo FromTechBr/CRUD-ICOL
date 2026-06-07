@@ -25,4 +25,6 @@ public interface  AlunosIcolRepositorio extends JpaRepository<AlunosIcol, Long>{
     // Busca aluno por ID apenas se ativo
     @Query("SELECT a FROM AlunosIcol a WHERE a.id = :id AND a.ativo = true")
     Optional<AlunosIcol> findByIdAndAtivo(@Param("id") Long id);
+
+    boolean existsByUsuario_Id(Long usuarioId);
 }

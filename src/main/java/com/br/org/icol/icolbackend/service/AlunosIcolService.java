@@ -6,6 +6,7 @@ import com.br.org.icol.icolbackend.model.AlunosIcol;
 import com.br.org.icol.icolbackend.model.UsuariosIcol;
 import com.br.org.icol.icolbackend.repository.AlunosIcolRepositorio;
 import com.br.org.icol.icolbackend.repository.UsuariosIcolRepositorio;
+import com.br.org.icol.icolbackend.repository.DocentesIcolRepositorio;
 import com.br.org.icol.icolbackend.exception.RequisicaoNaoEncontrada;
 import com.br.org.icol.icolbackend.exception.RequisicaoInvalida;
 import com.br.org.icol.icolbackend.dto.AlunoRequestDTO;
@@ -21,11 +22,13 @@ public class AlunosIcolService {
 
     private final AlunosIcolRepositorio repoAlunos;
     private final UsuariosIcolRepositorio repoUsuarios;
+    private final DocentesIcolRepositorio repoDocentes;
 
-    // Injeção de dependência dos dois repositórios via construtor
-    public AlunosIcolService(AlunosIcolRepositorio repoAlunos, UsuariosIcolRepositorio repoUsuarios) {
+    // Injeção de dependência dos repositórios via construtor
+    public AlunosIcolService(AlunosIcolRepositorio repoAlunos, UsuariosIcolRepositorio repoUsuarios, DocentesIcolRepositorio repoDocentes) {
         this.repoAlunos = repoAlunos;
         this.repoUsuarios = repoUsuarios;
+        this.repoDocentes = repoDocentes;
     }
 
     // Método auxiliar para converter Entidade -> DTO
@@ -74,6 +77,14 @@ public class AlunosIcolService {
         // Busca o usuário real no banco para garantir que ele existe antes de vincular
         UsuariosIcol usuarioExistente = repoUsuarios.findById(dto.getUsuarioId())
                 .orElseThrow(() -> new RequisicaoNaoEncontrada("Usuário de acesso não encontrado."));
+
+        // Regra 1: Vínculo Único e Perfil
+        if (usuarioExistente.getTipoUsuario() != com.br.org.icol.icolbackend.enums.TiposUsuario.ALUNO) {
+            throw new RequisicaoInvalida("Este usuário não possui permissão de ALUNO.");
+        }
+        if (repoDocentes.existsByUsuario_Id(dto.getUsuarioId())) {
+            throw new RequisicaoInvalida("Este usuário já possui um vínculo de DOCENTE ativo.");
+        }
 
         AlunosIcol alunoCadastrar = new AlunosIcol();
         alunoCadastrar.setNomeCompleto(dto.getNomeCompleto());

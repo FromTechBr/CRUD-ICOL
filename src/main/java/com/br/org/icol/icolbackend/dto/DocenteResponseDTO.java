@@ -7,6 +7,7 @@ public class DocenteResponseDTO {
     private Long id;
     private String nomeCompleto;
     private String especializacao;
+    private Boolean ativo;
     private Long usuarioId;
     private String emailUsuario;
 }

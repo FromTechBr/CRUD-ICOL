@@ -1,6 +1,7 @@
 package com.br.org.icol.icolbackend.service;
 
 import com.br.org.icol.icolbackend.exception.RequisicaoNaoEncontrada;
+import com.br.org.icol.icolbackend.exception.RequisicaoInvalida;
 import com.br.org.icol.icolbackend.model.FrequenciaIcol;
 import com.br.org.icol.icolbackend.model.MatriculaIcol;
 import com.br.org.icol.icolbackend.repository.FrequenciaIcolRepositorio;
@@ -59,6 +60,11 @@ public class FrequenciaIcolService {
         MatriculaIcol matriculaExistente = repoMatricula.findById(dto.getMatriculaId())
                 .orElseThrow(() -> new RequisicaoNaoEncontrada("Matrícula não encontrada."));
 
+        // Regra 5: Prevenir Frequência Duplicada
+        if(repoFrequencia.existsByMatriculaIdAndDataAula(matriculaExistente, dto.getDataAula())){
+            throw new RequisicaoInvalida("Já existe um registro de frequência para este aluno nesta data.");
+        }
+
         FrequenciaIcol frequenciaRegistrar = new FrequenciaIcol();
         frequenciaRegistrar.setMatriculaId(matriculaExistente);
         frequenciaRegistrar.setDataAula(dto.getDataAula());
@@ -78,12 +84,5 @@ public class FrequenciaIcolService {
 
         FrequenciaIcol salvo = repoFrequencia.save(existente);
         return toDTO(salvo);
-    }
-
-    public void deletar(Long id) {
-        if (!repoFrequencia.existsById(id)) {
-            throw new RequisicaoNaoEncontrada("Frequência não encontrada para exclusão.");
-        }
-        repoFrequencia.deleteById(id);
     }
 }

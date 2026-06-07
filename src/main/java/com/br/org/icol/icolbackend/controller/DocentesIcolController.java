@@ -44,7 +44,7 @@ public class DocentesIcolController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        servicoDocentes.deletar(id);
+        servicoDocentes.inativar(id);
         return ResponseEntity.noContent().build();
     }
 }
