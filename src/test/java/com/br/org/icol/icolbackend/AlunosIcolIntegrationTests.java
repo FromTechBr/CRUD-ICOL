@@ -1,7 +1,8 @@
 package com.br.org.icol.icolbackend;
 
+import com.br.org.icol.icolbackend.dto.AlunoRequestDTO;
+import com.br.org.icol.icolbackend.dto.AlunoResponseDTO;
 import com.br.org.icol.icolbackend.enums.TiposUsuario;
-import com.br.org.icol.icolbackend.model.AlunosIcol;
 import com.br.org.icol.icolbackend.model.UsuariosIcol;
 import com.br.org.icol.icolbackend.repository.AlunosIcolRepositorio;
 import com.br.org.icol.icolbackend.repository.UsuariosIcolRepositorio;
@@ -41,16 +42,16 @@ class AlunosIcolIntegrationTests {
 
     @Test
     void deveSalvarAlunoComUsuarioExistente() {
-        AlunosIcol aluno = new AlunosIcol();
-        aluno.setUsuario(usuarioAluno);
-        aluno.setNomeCompleto("Teste Integração");
-        aluno.setIdade(22);
-        aluno.setCpf("999.888.777-66");
-        aluno.setTelefone("11999998877");
-        aluno.setDeclaSocie("Renda familiar até 2 salários mínimos");
-        aluno.setEndereco("Rua de Teste, 10");
+        AlunoRequestDTO dto = new AlunoRequestDTO();
+        dto.setUsuarioId(usuarioAluno.getId());
+        dto.setNomeCompleto("Teste Integração");
+        dto.setIdade(22);
+        dto.setCpf("999.888.777-66");
+        dto.setTelefone("11999998877");
+        dto.setDeclaSocie("Renda familiar até 2 salários mínimos");
+        dto.setEndereco("Rua de Teste, 10");
 
-        AlunosIcol salvo = alunosService.criar(aluno);
+        AlunoResponseDTO salvo = alunosService.criar(dto);
 
         assertThat(salvo.getId()).isNotNull();
         assertThat(salvo.getCpf()).isEqualTo("999.888.777-66");
@@ -59,37 +60,40 @@ class AlunosIcolIntegrationTests {
 
     @Test
     void deveBuscarAlunoPorIdAposSalvar() {
-        AlunosIcol aluno = new AlunosIcol();
-        aluno.setUsuario(usuarioAluno);
-        aluno.setNomeCompleto("Consulta Aluno");
-        aluno.setIdade(24);
-        aluno.setCpf("888.777.666-55");
-        aluno.setTelefone("11888887766");
-        aluno.setDeclaSocie("Renda familiar até 2 salários mínimos");
-        aluno.setEndereco("Av Consulta, 100");
+        AlunoRequestDTO dto = new AlunoRequestDTO();
+        dto.setUsuarioId(usuarioAluno.getId());
+        dto.setNomeCompleto("Consulta Aluno");
+        dto.setIdade(24);
+        dto.setCpf("888.777.666-55");
+        dto.setTelefone("11888887766");
+        dto.setDeclaSocie("Renda familiar até 2 salários mínimos");
+        dto.setEndereco("Av Consulta, 100");
 
-        AlunosIcol salvo = alunosService.criar(aluno);
-        AlunosIcol encontrado = alunosService.buscar(salvo.getId());
+        AlunoResponseDTO salvo = alunosService.criar(dto);
+        AlunoResponseDTO encontrado = alunosService.buscar(salvo.getId());
 
         assertThat(encontrado).isNotNull();
         assertThat(encontrado.getNomeCompleto()).isEqualTo("Consulta Aluno");
-        assertThat(encontrado.getUsuario().getId()).isEqualTo(usuarioAluno.getId());
+        assertThat(encontrado.getUsuarioId()).isEqualTo(usuarioAluno.getId());
     }
 
     @Test
     void deveDeletarAlunoAposCriar() {
-        AlunosIcol aluno = new AlunosIcol();
-        aluno.setUsuario(usuarioAluno);
-        aluno.setNomeCompleto("Aluno Deletar");
-        aluno.setIdade(21);
-        aluno.setCpf("777.666.555-44");
-        aluno.setTelefone("11777776655");
-        aluno.setDeclaSocie("Renda familiar até 2 salários mínimos");
-        aluno.setEndereco("Rua Delete, 50");
+        AlunoRequestDTO dto = new AlunoRequestDTO();
+        dto.setUsuarioId(usuarioAluno.getId());
+        dto.setNomeCompleto("Aluno Deletar");
+        dto.setIdade(21);
+        dto.setCpf("777.666.555-44");
+        dto.setTelefone("11777776655");
+        dto.setDeclaSocie("Renda familiar até 2 salários mínimos");
+        dto.setEndereco("Rua Delete, 50");
 
-        AlunosIcol salvo = alunosService.criar(aluno);
-        alunosService.deletar(salvo.getId());
+        AlunoResponseDTO salvo = alunosService.criar(dto);
+        alunosService.inativar(salvo.getId());
 
-        assertThat(alunosRepo.existsById(salvo.getId())).isFalse();
+        // Soft delete: aluno ainda existe no BD mas inativo
+        assertThat(alunosRepo.existsById(salvo.getId())).isTrue();
+        // Verificar que ele não aparece mais na listagem de ativos
+        assertThat(alunosService.listar()).noneMatch(a -> a.getId().equals(salvo.getId()));
     }
 }

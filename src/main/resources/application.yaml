@@ -23,9 +23,9 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
+        "[format_sql]": true
         jdbc:
-          use_get_generated_keys: true
+          "[use_get_generated_keys]": true
 
 # ===============================
 # CONFIGURAÇÕES DO SERVIDOR
@@ -42,3 +42,22 @@ jwt:
   # O valor padrão foi removido por segurança. Ele DEVE ser passado pelo ambiente.
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION:86400000}
+
+# ===============================
+# CONFIGURAÇÕES DE LOGGING
+# ===============================
+logging:
+  level:
+    root: INFO
+    "[org.springframework.web]": DEBUG
+    "[org.springframework.security]": DEBUG
+    "[org.hibernate.SQL]": DEBUG
+    "[org.hibernate.type.descriptor.sql]": TRACE
+    HTTP_REQUESTS: INFO
+  file:
+    name: logs/application.log
+    max-size: 10MB
+    max-history: 10
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"

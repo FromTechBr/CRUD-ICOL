@@ -1,57 +1,50 @@
 package com.br.org.icol.icolbackend.controller;
 
-import com.br.org.icol.icolbackend.model.CursosIcol;
+import com.br.org.icol.icolbackend.dto.CursoRequestDTO;
+import com.br.org.icol.icolbackend.dto.CursoResponseDTO;
 import com.br.org.icol.icolbackend.service.CursosIcolService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
 @RequestMapping("/cursos")
 public class CursosIcolController {
 
-    private final CursosIcolService service;
+    private final CursosIcolService servicoCursos;
 
     public CursosIcolController(CursosIcolService service) {
-        this.service = service;
+        this.servicoCursos = service;
     }
 
     @GetMapping
-    public ResponseEntity<List<CursosIcol>> listar() {
-        return ResponseEntity.ok(service.listar());
+    public ResponseEntity<List<CursoResponseDTO>> listar() {
+        return ResponseEntity.ok(servicoCursos.listar());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CursosIcol> buscar(@PathVariable Long id) {
-        return ResponseEntity.ok(service.buscar(id));
+    public ResponseEntity<CursoResponseDTO> buscar(@PathVariable Long id) {
+        return ResponseEntity.ok(servicoCursos.buscar(id));
     }
 
     @PostMapping
-    public ResponseEntity<CursosIcol> criar(@Valid @RequestBody CursosIcol curso) {
-        CursosIcol novoCurso = service.criar(curso);
-        
-        // Cria o header Location com a URL do novo recurso
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(novoCurso.getId())
-                .toUri();
-                
-        return ResponseEntity.created(uri).body(novoCurso);
+    public ResponseEntity<CursoResponseDTO> criar(@Valid @RequestBody CursoRequestDTO dto) {
+        CursoResponseDTO novo = servicoCursos.criar(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novo);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CursosIcol> atualizar(@PathVariable Long id, @Valid @RequestBody CursosIcol curso) {
-        return ResponseEntity.ok(service.atualizar(id, curso));
+    public ResponseEntity<CursoResponseDTO> atualizar(@PathVariable Long id, @Valid @RequestBody CursoRequestDTO dto) {
+        CursoResponseDTO atualizado = servicoCursos.atualizar(id, dto);
+        return ResponseEntity.ok(atualizado);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> inativar(@PathVariable Long id) {
-        // Chamando o método de exclusão lógica que criamos no Service
-        service.inativar(id); 
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        servicoCursos.inativar(id);
         return ResponseEntity.noContent().build();
     }
 }

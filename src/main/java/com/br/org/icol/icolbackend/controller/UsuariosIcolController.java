@@ -1,52 +1,50 @@
 package com.br.org.icol.icolbackend.controller;
 
 import java.util.List;
-import java.net.URI;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.br.org.icol.icolbackend.model.UsuariosIcol;
 import com.br.org.icol.icolbackend.service.UsuariosIcolService;
+import com.br.org.icol.icolbackend.dto.UsuarioRequestDTO;
+import com.br.org.icol.icolbackend.dto.UsuarioResponseDTO;
 
 @RestController
 @RequestMapping("/usuarios")
 public class UsuariosIcolController {
-    private final UsuariosIcolService service;
+    private final UsuariosIcolService servicoUsuarios;
     
     public UsuariosIcolController(UsuariosIcolService service){
-        this.service=service;
+        this.servicoUsuarios=service;
     }
 
     @GetMapping
-    public List<UsuariosIcol>listar(){
-        return service.listar();
+    public ResponseEntity<List<UsuarioResponseDTO>> listar(){
+        return ResponseEntity.ok(servicoUsuarios.listar());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UsuariosIcol> buscar(@PathVariable Long id){
-        return ResponseEntity.ok(service.buscar(id));
+    public ResponseEntity<UsuarioResponseDTO> buscar(@PathVariable Long id){
+        return ResponseEntity.ok(servicoUsuarios.buscar(id));
     }
 
     @PostMapping
-    public ResponseEntity<UsuariosIcol> criar(@Valid @RequestBody UsuariosIcol usuarioCadastrar){
-        UsuariosIcol criado = service.criar(usuarioCadastrar);
-        URI uri=ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-            .buildAndExpand(criado.getId()).toUri();
-        return ResponseEntity.created(uri).body(criado);
+    public ResponseEntity<UsuarioResponseDTO> criar(@Valid @RequestBody UsuarioRequestDTO dto){
+        UsuarioResponseDTO novo = servicoUsuarios.criar(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novo);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UsuariosIcol> atualizar(@PathVariable Long id, @Valid @RequestBody UsuariosIcol pessoaAtualizar){
-        return ResponseEntity.ok(service.atualizar(id, pessoaAtualizar));
+    public ResponseEntity<UsuarioResponseDTO> atualizar(@PathVariable Long id, @Valid @RequestBody UsuarioRequestDTO dto){
+        UsuarioResponseDTO atualizado = servicoUsuarios.atualizar(id, dto);
+        return ResponseEntity.ok(atualizado);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id){
-        service.inativar(id);
+        servicoUsuarios.inativar(id);
         return ResponseEntity.noContent().build();
     }
-}   
-
+}

@@ -14,7 +14,7 @@ public class AvisosMuralIcol {
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="usuario_id", nullable=false)
-    private UsuariosIcol autorId;
+    private UsuariosIcol autor;
 
     @Column(nullable=false)
     private String titulo;

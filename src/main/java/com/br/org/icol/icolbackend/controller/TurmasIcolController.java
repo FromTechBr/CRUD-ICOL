@@ -1,55 +1,50 @@
 package com.br.org.icol.icolbackend.controller;
 
-import com.br.org.icol.icolbackend.model.TurmasIcol;
+import com.br.org.icol.icolbackend.dto.TurmaRequestDTO;
+import com.br.org.icol.icolbackend.dto.TurmaResponseDTO;
 import com.br.org.icol.icolbackend.service.TurmasIcolService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
 @RequestMapping("/turmas")
 public class TurmasIcolController {
 
-    private final TurmasIcolService service;
+    private final TurmasIcolService servicoTurmas;
 
     public TurmasIcolController(TurmasIcolService service) {
-        this.service = service;
+        this.servicoTurmas = service;
     }
 
     @GetMapping
-    public ResponseEntity<List<TurmasIcol>> listar() {
-        return ResponseEntity.ok(service.listar());
+    public ResponseEntity<List<TurmaResponseDTO>> listar() {
+        return ResponseEntity.ok(servicoTurmas.listar());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TurmasIcol> buscar(@PathVariable Long id) {
-        return ResponseEntity.ok(service.buscar(id));
+    public ResponseEntity<TurmaResponseDTO> buscar(@PathVariable Long id) {
+        return ResponseEntity.ok(servicoTurmas.buscar(id));
     }
 
     @PostMapping
-    public ResponseEntity<TurmasIcol> criar(@Valid @RequestBody TurmasIcol turma) {
-        TurmasIcol novaTurma = service.criar(turma);
-        
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(novaTurma.getId())
-                .toUri();
-                
-        return ResponseEntity.created(uri).body(novaTurma);
+    public ResponseEntity<TurmaResponseDTO> criar(@Valid @RequestBody TurmaRequestDTO dto) {
+        TurmaResponseDTO novo = servicoTurmas.criar(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novo);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TurmasIcol> atualizar(@PathVariable Long id, @Valid @RequestBody TurmasIcol turma) {
-        return ResponseEntity.ok(service.atualizar(id, turma));
+    public ResponseEntity<TurmaResponseDTO> atualizar(@PathVariable Long id, @Valid @RequestBody TurmaRequestDTO dto) {
+        TurmaResponseDTO atualizado = servicoTurmas.atualizar(id, dto);
+        return ResponseEntity.ok(atualizado);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        service.deletar(id);
+        servicoTurmas.deletar(id);
         return ResponseEntity.noContent().build();
     }
 }

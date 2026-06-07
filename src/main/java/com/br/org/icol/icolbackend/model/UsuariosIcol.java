@@ -6,6 +6,7 @@ import lombok.ToString;
 import lombok.EqualsAndHashCode;
 import com.br.org.icol.icolbackend.enums.TiposUsuario;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Data
 @Entity
@@ -28,12 +29,15 @@ public class UsuariosIcol {
     @Column(nullable=false)
     private TiposUsuario tipoUsuario;
 
+    @JsonIgnore
     @OneToMany(mappedBy="usuario", cascade=CascadeType.ALL, orphanRemoval=true)
     private List<AlunosIcol> alunos;
 
+    @JsonIgnore
     @OneToOne(mappedBy="usuario", cascade=CascadeType.ALL, orphanRemoval=true)
     private DocentesIcol docentes;
 
-    @OneToMany(mappedBy="autorId", cascade=CascadeType.ALL, orphanRemoval=true)
+    @JsonIgnore
+    @OneToMany(mappedBy="autor", cascade=CascadeType.ALL, orphanRemoval=true)
     private List<AvisosMuralIcol> avisos;
 }

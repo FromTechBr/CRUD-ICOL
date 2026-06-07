@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.ToString;
 import lombok.EqualsAndHashCode;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Data
 @Entity
@@ -32,7 +33,11 @@ public class AlunosIcol {
     private String declaSocie;
     @Column(nullable=false)
     private String endereco;
+    
+    @Column(nullable=false)
+    private Boolean ativo = true;
 
+    @JsonIgnore
     @OneToMany(mappedBy="alunoMatrId", cascade=CascadeType.ALL, orphanRemoval=true)
     private List<MatriculaIcol> matriculas;
 }

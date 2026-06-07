@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import java.time.*;
 import java.util.List;
 import com.br.org.icol.icolbackend.enums.StatusMatricula;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Data
 @Entity
@@ -33,6 +34,7 @@ public class MatriculaIcol {
     @JoinColumn(name="turma_id", nullable=false)
     private TurmasIcol turmaMatrId;
 
+    @JsonIgnore
     @OneToMany(mappedBy="matriculaId", cascade=CascadeType.ALL, orphanRemoval=true)
     private List<FrequenciaIcol> frequencias;
 }

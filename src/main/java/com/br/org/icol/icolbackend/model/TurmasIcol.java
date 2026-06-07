@@ -20,6 +20,7 @@ import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Data
 @Entity
@@ -50,6 +51,7 @@ public class TurmasIcol {
     @Column(nullable=false)
     private String cronogramaHorarios;
 
+    @JsonIgnore
     @OneToMany(mappedBy="turmaMatrId", cascade=CascadeType.ALL, orphanRemoval=true)
     private List<MatriculaIcol> matriculas;
-}   
+}

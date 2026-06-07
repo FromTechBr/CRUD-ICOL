@@ -1,55 +1,50 @@
 package com.br.org.icol.icolbackend.controller;
 
-import com.br.org.icol.icolbackend.model.MatriculaIcol;
+import com.br.org.icol.icolbackend.dto.MatriculaRequestDTO;
+import com.br.org.icol.icolbackend.dto.MatriculaResponseDTO;
 import com.br.org.icol.icolbackend.service.MatriculaIcolService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
 @RequestMapping("/matriculas")
 public class MatriculaIcolController {
 
-    private final MatriculaIcolService service;
+    private final MatriculaIcolService servicoMatricula;
 
     public MatriculaIcolController(MatriculaIcolService service) {
-        this.service = service;
+        this.servicoMatricula = service;
     }
 
     @GetMapping
-    public ResponseEntity<List<MatriculaIcol>> listar() {
-        return ResponseEntity.ok(service.listar());
+    public ResponseEntity<List<MatriculaResponseDTO>> listar() {
+        return ResponseEntity.ok(servicoMatricula.listar());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MatriculaIcol> buscar(@PathVariable Long id) {
-        return ResponseEntity.ok(service.buscar(id));
+    public ResponseEntity<MatriculaResponseDTO> buscar(@PathVariable Long id) {
+        return ResponseEntity.ok(servicoMatricula.buscar(id));
     }
 
     @PostMapping
-    public ResponseEntity<MatriculaIcol> criar(@Valid @RequestBody MatriculaIcol matricula) {
-        MatriculaIcol novaMatricula = service.criar(matricula);
-        
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(novaMatricula.getId())
-                .toUri();
-                
-        return ResponseEntity.created(uri).body(novaMatricula);
+    public ResponseEntity<MatriculaResponseDTO> criar(@Valid @RequestBody MatriculaRequestDTO dto) {
+        MatriculaResponseDTO novo = servicoMatricula.criar(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novo);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MatriculaIcol> atualizar(@PathVariable Long id, @Valid @RequestBody MatriculaIcol matricula) {
-        return ResponseEntity.ok(service.atualizar(id, matricula));
+    public ResponseEntity<MatriculaResponseDTO> atualizar(@PathVariable Long id, @Valid @RequestBody MatriculaRequestDTO dto) {
+        MatriculaResponseDTO atualizado = servicoMatricula.atualizar(id, dto);
+        return ResponseEntity.ok(atualizado);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        service.deletar(id);
+        servicoMatricula.deletar(id);
         return ResponseEntity.noContent().build();
     }
 }

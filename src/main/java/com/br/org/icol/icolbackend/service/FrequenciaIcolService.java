@@ -5,9 +5,13 @@ import com.br.org.icol.icolbackend.model.FrequenciaIcol;
 import com.br.org.icol.icolbackend.model.MatriculaIcol;
 import com.br.org.icol.icolbackend.repository.FrequenciaIcolRepositorio;
 import com.br.org.icol.icolbackend.repository.MatriculaIcolRepositorio;
+import com.br.org.icol.icolbackend.dto.FrequenciaRequestDTO;
+import com.br.org.icol.icolbackend.dto.FrequenciaResponseDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -22,46 +26,58 @@ public class FrequenciaIcolService {
         this.repoMatricula = repoMatricula;
     }
 
-    public List<FrequenciaIcol> listar() {
-        return repoFrequencia.findAll();
+    // Método auxiliar para converter Entidade -> DTO
+    private FrequenciaResponseDTO toDTO(FrequenciaIcol entidade) {
+        FrequenciaResponseDTO dto = new FrequenciaResponseDTO();
+        dto.setId(entidade.getId());
+        dto.setDataAula(entidade.getDataAula());
+        dto.setStatusPresenca(entidade.getStatusPresenca());
+        dto.setJustificativa(entidade.getJustificativa());
+        if (entidade.getMatriculaId() != null) {
+            dto.setMatriculaId(entidade.getMatriculaId().getId());
+        }
+        return dto;
     }
 
-    public FrequenciaIcol buscar(Long id) {
+    // Método auxiliar para buscar a entidade internamente
+    public FrequenciaIcol buscarEntidade(Long id) {
         return repoFrequencia.findById(id)
                 .orElseThrow(() -> new RequisicaoNaoEncontrada("Frequência não encontrada com ID: " + id));
     }
 
-    public FrequenciaIcol criar(FrequenciaIcol frequenciaCadastrar) {
-        if (frequenciaCadastrar.getMatriculaId() == null || frequenciaCadastrar.getMatriculaId().getId() == null) {
-            throw new RequisicaoNaoEncontrada("É obrigatório informar o ID da matrícula.");
-        }
-
-        if (frequenciaCadastrar.getDataAula() == null) {
-            throw new RequisicaoNaoEncontrada("A data da aula é obrigatória.");
-        }
-
-        if (frequenciaCadastrar.getStatusPresenca() == null) {
-            throw new RequisicaoNaoEncontrada("O status de presença é obrigatório.");
-        }
-
-        MatriculaIcol matriculaExistente = repoMatricula.findById(frequenciaCadastrar.getMatriculaId().getId())
-                .orElseThrow(() -> new RequisicaoNaoEncontrada("Matrícula não encontrada."));
-
-        frequenciaCadastrar.setMatriculaId(matriculaExistente);
-        return repoFrequencia.save(frequenciaCadastrar);
+    public List<FrequenciaResponseDTO> listar() {
+        return repoFrequencia.findAll().stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
-    public FrequenciaIcol atualizar(Long id, FrequenciaIcol frequenciaAtualizar) {
-        FrequenciaIcol existente = buscar(id);
-        
-        if (frequenciaAtualizar.getStatusPresenca() != null) {
-            existente.setStatusPresenca(frequenciaAtualizar.getStatusPresenca());
-        }
-        if (frequenciaAtualizar.getJustificativa() != null) {
-            existente.setJustificativa(frequenciaAtualizar.getJustificativa());
-        }
-        
-        return repoFrequencia.save(existente);
+    public FrequenciaResponseDTO buscar(Long id) {
+        return toDTO(buscarEntidade(id));
+    }
+
+    public FrequenciaResponseDTO registrar(FrequenciaRequestDTO dto) {
+        MatriculaIcol matriculaExistente = repoMatricula.findById(dto.getMatriculaId())
+                .orElseThrow(() -> new RequisicaoNaoEncontrada("Matrícula não encontrada."));
+
+        FrequenciaIcol frequenciaRegistrar = new FrequenciaIcol();
+        frequenciaRegistrar.setMatriculaId(matriculaExistente);
+        frequenciaRegistrar.setDataAula(dto.getDataAula());
+        frequenciaRegistrar.setStatusPresenca(dto.getStatusPresenca());
+        frequenciaRegistrar.setJustificativa(dto.getJustificativa());
+
+        FrequenciaIcol salvo = repoFrequencia.save(frequenciaRegistrar);
+        return toDTO(salvo);
+    }
+
+    public FrequenciaResponseDTO atualizar(Long id, FrequenciaRequestDTO dto) {
+        FrequenciaIcol existente = buscarEntidade(id);
+
+        existente.setDataAula(dto.getDataAula());
+        existente.setStatusPresenca(dto.getStatusPresenca());
+        existente.setJustificativa(dto.getJustificativa());
+
+        FrequenciaIcol salvo = repoFrequencia.save(existente);
+        return toDTO(salvo);
     }
 
     public void deletar(Long id) {

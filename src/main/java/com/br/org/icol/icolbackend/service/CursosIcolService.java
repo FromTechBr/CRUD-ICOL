@@ -6,8 +6,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.br.org.icol.icolbackend.model.CursosIcol;
 import com.br.org.icol.icolbackend.repository.CursosIcolRepositorio;
 import com.br.org.icol.icolbackend.exception.RequisicaoNaoEncontrada;
+import com.br.org.icol.icolbackend.exception.RequisicaoInvalida;
+import com.br.org.icol.icolbackend.dto.CursoRequestDTO;
+import com.br.org.icol.icolbackend.dto.CursoResponseDTO;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -18,48 +22,69 @@ public class CursosIcolService{
         this.repoCursos = repoCursos;
     }
 
-    public List<CursosIcol>listar(){
-        return repoCursos.findAll();
+    // Método auxiliar para converter Entidade -> DTO
+    private CursoResponseDTO toDTO(CursosIcol entidade) {
+        CursoResponseDTO dto = new CursoResponseDTO();
+        dto.setId(entidade.getId());
+        dto.setNomeCurso(entidade.getNomeCurso());
+        dto.setDescricao(entidade.getDescricao());
+        dto.setDuracao(entidade.getDuracao());
+        dto.setCategoria(entidade.getCategoria());
+        dto.setAtivo(entidade.getAtivo());
+        return dto;
     }
-    public CursosIcol buscar(Long id){
+
+    // Método auxiliar para buscar a entidade internamente
+    public CursosIcol buscarEntidade(Long id){
         return repoCursos.findById(id).orElseThrow(()-> new RequisicaoNaoEncontrada
         ("Curso com ID: "+id+" não encontrado!"));
     }
-    public CursosIcol criar(CursosIcol cursosCadastar){
-        if(repoCursos.findByNomeCurso(cursosCadastar.getNomeCurso()).isPresent()){
-            throw new RequisicaoNaoEncontrada("Esse curso já exite!");
-        }
-        if (cursosCadastar.getDescricao() == null || cursosCadastar.getDescricao().trim().isEmpty()) {
-            throw new RequisicaoNaoEncontrada("A descrição do curso é obrigatória.");
-        }
-        if (cursosCadastar.getDuracao() == null || cursosCadastar.getDuracao().trim().isEmpty()) {
-            throw new RequisicaoNaoEncontrada("A duração do curso é obrigatória.");
-        }
-        cursosCadastar.setAtivo(true);
-        return repoCursos.save(cursosCadastar);
+
+    public List<CursoResponseDTO> listar(){
+        return repoCursos.findAll().stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
-    public CursosIcol atualizar(Long id,CursosIcol cursosAtualizar){
-        CursosIcol existente = buscar(id);
-        Optional<CursosIcol> cursoComEsseNome = repoCursos.findByNomeCurso(cursosAtualizar.getNomeCurso());
+
+    public CursoResponseDTO buscar(Long id){
+        return toDTO(buscarEntidade(id));
+    }
+
+    public CursoResponseDTO criar(CursoRequestDTO dto){
+        if(repoCursos.findByNomeCurso(dto.getNomeCurso()).isPresent()){
+            throw new RequisicaoInvalida("Esse curso já existe!");
+        }
+        
+        CursosIcol cursosCadastrar = new CursosIcol();
+        cursosCadastrar.setNomeCurso(dto.getNomeCurso());
+        cursosCadastrar.setDescricao(dto.getDescricao());
+        cursosCadastrar.setDuracao(dto.getDuracao());
+        cursosCadastrar.setCategoria(dto.getCategoria());
+        cursosCadastrar.setAtivo(true);
+        
+        CursosIcol salvo = repoCursos.save(cursosCadastrar);
+        return toDTO(salvo);
+    }
+
+    public CursoResponseDTO atualizar(Long id, CursoRequestDTO dto){
+        CursosIcol existente = buscarEntidade(id);
+        Optional<CursosIcol> cursoComEsseNome = repoCursos.findByNomeCurso(dto.getNomeCurso());
 
         if(cursoComEsseNome.isPresent() && !cursoComEsseNome.get().getId().equals(id)){
-            throw new RequisicaoNaoEncontrada("Este curso já se encontra cadastrado.");
+            throw new RequisicaoInvalida("Este curso já se encontra cadastrado.");
         }
-         if (cursosAtualizar.getDescricao() == null || cursosAtualizar.getDescricao().trim().isEmpty()) {
-            throw new RequisicaoNaoEncontrada("A descrição do curso é obrigatória.");
-        }
-        if (cursosAtualizar.getDuracao() == null || cursosAtualizar.getDuracao().trim().isEmpty()) {
-            throw new RequisicaoNaoEncontrada("A duração do curso é obrigatória.");
-        }
-        existente.setNomeCurso(cursosAtualizar.getNomeCurso());
-        existente.setDescricao(cursosAtualizar.getDescricao());
-        existente.setDuracao(cursosAtualizar.getDuracao());
-        existente.setCategoria(cursosAtualizar.getCategoria());
+         
+        existente.setNomeCurso(dto.getNomeCurso());
+        existente.setDescricao(dto.getDescricao());
+        existente.setDuracao(dto.getDuracao());
+        existente.setCategoria(dto.getCategoria());
 
-        return repoCursos.save(existente);
+        CursosIcol salvo = repoCursos.save(existente);
+        return toDTO(salvo);
     }
+
     public void inativar(Long id){
-        CursosIcol cursosAdeletar = buscar(id);
+        CursosIcol cursosAdeletar = buscarEntidade(id);
         cursosAdeletar.setAtivo(false);
         repoCursos.save(cursosAdeletar);
     }

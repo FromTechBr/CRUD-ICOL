@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.ToString;
 import lombok.EqualsAndHashCode;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Data
 @Entity
@@ -27,6 +28,7 @@ public class DocentesIcol {
     @Column(nullable=true)
     private String especializacao;
 
+    @JsonIgnore
     @OneToMany(mappedBy="docente", cascade=CascadeType.ALL, orphanRemoval=true)
     private List<TurmasIcol> turmas;
 }

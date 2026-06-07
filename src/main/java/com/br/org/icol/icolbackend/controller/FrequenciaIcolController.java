@@ -1,55 +1,50 @@
 package com.br.org.icol.icolbackend.controller;
 
-import com.br.org.icol.icolbackend.model.FrequenciaIcol;
 import com.br.org.icol.icolbackend.service.FrequenciaIcolService;
+import com.br.org.icol.icolbackend.dto.FrequenciaRequestDTO;
+import com.br.org.icol.icolbackend.dto.FrequenciaResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
 @RequestMapping("/frequencias")
 public class FrequenciaIcolController {
 
-    private final FrequenciaIcolService service;
+    private final FrequenciaIcolService servicoFrequencia;
 
     public FrequenciaIcolController(FrequenciaIcolService service) {
-        this.service = service;
+        this.servicoFrequencia = service;
     }
 
     @GetMapping
-    public ResponseEntity<List<FrequenciaIcol>> listar() {
-        return ResponseEntity.ok(service.listar());
+    public ResponseEntity<List<FrequenciaResponseDTO>> listar() {
+        return ResponseEntity.ok(servicoFrequencia.listar());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<FrequenciaIcol> buscar(@PathVariable Long id) {
-        return ResponseEntity.ok(service.buscar(id));
+    public ResponseEntity<FrequenciaResponseDTO> buscar(@PathVariable Long id) {
+        return ResponseEntity.ok(servicoFrequencia.buscar(id));
     }
 
     @PostMapping
-    public ResponseEntity<FrequenciaIcol> criar(@Valid @RequestBody FrequenciaIcol frequencia) {
-        FrequenciaIcol novaFrequencia = service.criar(frequencia);
-        
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(novaFrequencia.getId())
-                .toUri();
-                
-        return ResponseEntity.created(uri).body(novaFrequencia);
+    public ResponseEntity<FrequenciaResponseDTO> registrar(@Valid @RequestBody FrequenciaRequestDTO dto) {
+        FrequenciaResponseDTO novo = servicoFrequencia.registrar(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novo);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<FrequenciaIcol> atualizar(@PathVariable Long id, @Valid @RequestBody FrequenciaIcol frequencia) {
-        return ResponseEntity.ok(service.atualizar(id, frequencia));
+    public ResponseEntity<FrequenciaResponseDTO> atualizar(@PathVariable Long id, @Valid @RequestBody FrequenciaRequestDTO dto) {
+        FrequenciaResponseDTO atualizado = servicoFrequencia.atualizar(id, dto);
+        return ResponseEntity.ok(atualizado);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        service.deletar(id);
+        servicoFrequencia.deletar(id);
         return ResponseEntity.noContent().build();
     }
 }

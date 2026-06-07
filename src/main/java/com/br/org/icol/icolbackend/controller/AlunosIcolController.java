@@ -1,56 +1,50 @@
 package com.br.org.icol.icolbackend.controller;
 
-import com.br.org.icol.icolbackend.model.AlunosIcol;
+import com.br.org.icol.icolbackend.dto.AlunoRequestDTO;
+import com.br.org.icol.icolbackend.dto.AlunoResponseDTO;
 import com.br.org.icol.icolbackend.service.AlunosIcolService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
 @RequestMapping("/alunos")
 public class AlunosIcolController {
 
-    private final AlunosIcolService service;
+    private final AlunosIcolService servicoAlunos;
 
     public AlunosIcolController(AlunosIcolService service) {
-        this.service = service;
+        this.servicoAlunos = service;
     }
 
     @GetMapping
-    public ResponseEntity<List<AlunosIcol>> listar() {
-        return ResponseEntity.ok(service.listar());
+    public ResponseEntity<List<AlunoResponseDTO>> listar() {
+        return ResponseEntity.ok(servicoAlunos.listar());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AlunosIcol> buscar(@PathVariable Long id) {
-        return ResponseEntity.ok(service.buscar(id));
+    public ResponseEntity<AlunoResponseDTO> buscar(@PathVariable Long id) {
+        return ResponseEntity.ok(servicoAlunos.buscar(id));
     }
 
     @PostMapping
-    public ResponseEntity<AlunosIcol> criar(@Valid @RequestBody AlunosIcol aluno) {
-        AlunosIcol novoAluno = service.criar(aluno);
-        
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(novoAluno.getId())
-                .toUri();
-                
-        return ResponseEntity.created(uri).body(novoAluno);
+    public ResponseEntity<AlunoResponseDTO> criar(@Valid @RequestBody AlunoRequestDTO dto) {
+        AlunoResponseDTO novo = servicoAlunos.criar(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novo);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AlunosIcol> atualizar(@PathVariable Long id, @Valid @RequestBody AlunosIcol aluno) {
-        return ResponseEntity.ok(service.atualizar(id, aluno));
+    public ResponseEntity<AlunoResponseDTO> atualizar(@PathVariable Long id, @Valid @RequestBody AlunoRequestDTO dto) {
+        AlunoResponseDTO atualizado = servicoAlunos.atualizar(id, dto);
+        return ResponseEntity.ok(atualizado);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        // Chamando o método de exclusão física (deleteById) que está no Service
-        service.deletar(id);
+        servicoAlunos.inativar(id);
         return ResponseEntity.noContent().build();
     }
 }

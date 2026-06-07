@@ -1,14 +1,18 @@
 package com.br.org.icol.icolbackend.service;
 
 import com.br.org.icol.icolbackend.exception.RequisicaoNaoEncontrada;
+import com.br.org.icol.icolbackend.exception.RequisicaoInvalida;
 import com.br.org.icol.icolbackend.model.DocentesIcol;
 import com.br.org.icol.icolbackend.model.UsuariosIcol;
 import com.br.org.icol.icolbackend.repository.DocentesIcolRepositorio;
 import com.br.org.icol.icolbackend.repository.UsuariosIcolRepositorio;
+import com.br.org.icol.icolbackend.dto.DocenteRequestDTO;
+import com.br.org.icol.icolbackend.dto.DocenteResponseDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -22,50 +26,62 @@ public class DocentesIcolService {
         this.repoUsuarios = repoUsuarios;
     }
 
-    public List<DocentesIcol> listar() {
-        return repoDocentes.findAll();
+    // Método auxiliar para converter Entidade -> DTO
+    private DocenteResponseDTO toDTO(DocentesIcol entidade) {
+        DocenteResponseDTO dto = new DocenteResponseDTO();
+        dto.setId(entidade.getId());
+        dto.setNomeCompleto(entidade.getNomeCompleto());
+        dto.setEspecializacao(entidade.getEspecializacao());
+        if (entidade.getUsuario() != null) {
+            dto.setUsuarioId(entidade.getUsuario().getId());
+            dto.setEmailUsuario(entidade.getUsuario().getEmailUsuario());
+        }
+        return dto;
     }
 
-    public DocentesIcol buscar(Long id) {
+    // Método auxiliar para buscar a entidade internamente
+    public DocentesIcol buscarEntidade(Long id) {
         return repoDocentes.findById(id)
                 .orElseThrow(() -> new RequisicaoNaoEncontrada("Docente não encontrado com ID: " + id));
     }
 
-    public DocentesIcol criar(DocentesIcol docenteCadastrar) {
-        // 1. Validação de Vínculo com Usuário
-        if (docenteCadastrar.getUsuario() == null || docenteCadastrar.getUsuario().getId() == null) {
-            throw new RequisicaoNaoEncontrada("É obrigatório informar o ID do usuário de acesso.");
-        }
-
-        // 2. Busca o usuário no banco para garantir que existe
-        UsuariosIcol usuarioExistente = repoUsuarios.findById(docenteCadastrar.getUsuario().getId())
-                .orElseThrow(() -> new RequisicaoNaoEncontrada("Usuário de acesso não encontrado."));
-
-        // 3. Verifica se esse usuário já está vinculado a outro docente (Regra 1:1)
-        if (repoDocentes.findByUsuarioId(usuarioExistente.getId()).isPresent()) {
-            throw new RequisicaoNaoEncontrada("Este usuário já está vinculado a um docente.");
-        }
-
-        // 4. Validação de Campos
-        if (docenteCadastrar.getNomeCompleto() == null || docenteCadastrar.getNomeCompleto().trim().isEmpty()) {
-            throw new RequisicaoNaoEncontrada("O nome completo é obrigatório.");
-        }
-
-        docenteCadastrar.setUsuario(usuarioExistente);
-        return repoDocentes.save(docenteCadastrar);
+    public List<DocenteResponseDTO> listar() {
+        return repoDocentes.findAll().stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
-    public DocentesIcol atualizar(Long id, DocentesIcol docenteAtualizar) {
-        DocentesIcol existente = buscar(id);
+    public DocenteResponseDTO buscar(Long id) {
+        return toDTO(buscarEntidade(id));
+    }
 
-        if (docenteAtualizar.getNomeCompleto() == null || docenteAtualizar.getNomeCompleto().trim().isEmpty()) {
-            throw new RequisicaoNaoEncontrada("O nome completo é obrigatório.");
+    public DocenteResponseDTO criar(DocenteRequestDTO dto) {
+        // 1. Busca o usuário no banco para garantir que existe
+        UsuariosIcol usuarioExistente = repoUsuarios.findById(dto.getUsuarioId())
+                .orElseThrow(() -> new RequisicaoNaoEncontrada("Usuário de acesso não encontrado."));
+
+        // 2. Verifica se esse usuário já está vinculado a outro docente (Regra 1:1)
+        if (repoDocentes.findByUsuario(usuarioExistente.getId()).isPresent()) {
+            throw new RequisicaoInvalida("Este usuário já está vinculado a um docente.");
         }
 
-        existente.setNomeCompleto(docenteAtualizar.getNomeCompleto());
-        existente.setEspecializacao(docenteAtualizar.getEspecializacao());
+        DocentesIcol docenteCadastrar = new DocentesIcol();
+        docenteCadastrar.setNomeCompleto(dto.getNomeCompleto());
+        docenteCadastrar.setEspecializacao(dto.getEspecializacao());
+        docenteCadastrar.setUsuario(usuarioExistente);
+        
+        DocentesIcol salvo = repoDocentes.save(docenteCadastrar);
+        return toDTO(salvo);
+    }
 
-        return repoDocentes.save(existente);
+    public DocenteResponseDTO atualizar(Long id, DocenteRequestDTO dto) {
+        DocentesIcol existente = buscarEntidade(id);
+
+        existente.setNomeCompleto(dto.getNomeCompleto());
+        existente.setEspecializacao(dto.getEspecializacao());
+
+        DocentesIcol salvo = repoDocentes.save(existente);
+        return toDTO(salvo);
     }
 
     public void deletar(Long id) {

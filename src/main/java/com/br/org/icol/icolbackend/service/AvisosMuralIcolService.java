@@ -5,10 +5,13 @@ import com.br.org.icol.icolbackend.model.AvisosMuralIcol;
 import com.br.org.icol.icolbackend.model.UsuariosIcol;
 import com.br.org.icol.icolbackend.repository.AvisosMuralIcolRepositorio;
 import com.br.org.icol.icolbackend.repository.UsuariosIcolRepositorio;
+import com.br.org.icol.icolbackend.dto.AvisoMuralRequestDTO;
+import com.br.org.icol.icolbackend.dto.AvisoMuralResponseDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -23,48 +26,56 @@ public class AvisosMuralIcolService {
         this.repoUsuarios = repoUsuarios;
     }
 
-    public List<AvisosMuralIcol> listar() {
-        return repoAvisos.findAll();
+    private AvisoMuralResponseDTO toDTO(AvisosMuralIcol entidade) {
+        AvisoMuralResponseDTO dto = new AvisoMuralResponseDTO();
+        dto.setId(entidade.getId());
+        dto.setTitulo(entidade.getTitulo());
+        dto.setConteudo(entidade.getConteudo());
+        dto.setDataPostagem(entidade.getDataPostagem());
+        if (entidade.getAutor() != null) {
+            dto.setAutorId(entidade.getAutor().getId());
+            dto.setEmailAutor(entidade.getAutor().getEmailUsuario());
+        }
+        return dto;
     }
 
-    public AvisosMuralIcol buscar(Long id) {
+    public AvisosMuralIcol buscarEntidade(Long id) {
         return repoAvisos.findById(id)
                 .orElseThrow(() -> new RequisicaoNaoEncontrada("Aviso não encontrado com ID: " + id));
     }
 
-    public AvisosMuralIcol criar(AvisosMuralIcol avisoCadastrar) {
-        if (avisoCadastrar.getAutorId() == null || avisoCadastrar.getAutorId().getId() == null) {
-            throw new RequisicaoNaoEncontrada("É obrigatório informar o ID do autor.");
-        }
-
-        if (avisoCadastrar.getTitulo() == null || avisoCadastrar.getTitulo().trim().isEmpty()) {
-            throw new RequisicaoNaoEncontrada("O título do aviso é obrigatório.");
-        }
-
-        if (avisoCadastrar.getConteudo() == null || avisoCadastrar.getConteudo().trim().isEmpty()) {
-            throw new RequisicaoNaoEncontrada("O conteúdo do aviso é obrigatório.");
-        }
-
-        UsuariosIcol autorExistente = repoUsuarios.findById(avisoCadastrar.getAutorId().getId())
-                .orElseThrow(() -> new RequisicaoNaoEncontrada("Autor não encontrado."));
-
-        avisoCadastrar.setAutorId(autorExistente);
-        avisoCadastrar.setDataPostagem(LocalDateTime.now());
-        
-        return repoAvisos.save(avisoCadastrar);
+    public List<AvisoMuralResponseDTO> listar() {
+        return repoAvisos.findAll().stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
-    public AvisosMuralIcol atualizar(Long id, AvisosMuralIcol avisoAtualizar) {
-        AvisosMuralIcol existente = buscar(id);
+    public AvisoMuralResponseDTO buscar(Long id) {
+        return toDTO(buscarEntidade(id));
+    }
+
+    public AvisoMuralResponseDTO criar(AvisoMuralRequestDTO dto) {
+        UsuariosIcol autorExistente = repoUsuarios.findById(dto.getAutorId())
+                .orElseThrow(() -> new RequisicaoNaoEncontrada("Autor (Usuário) não encontrado."));
+
+        AvisosMuralIcol avisoCadastrar = new AvisosMuralIcol();
+        avisoCadastrar.setAutor(autorExistente);
+        avisoCadastrar.setTitulo(dto.getTitulo());
+        avisoCadastrar.setConteudo(dto.getConteudo());
+        avisoCadastrar.setDataPostagem(LocalDateTime.now());
         
-        if (avisoAtualizar.getTitulo() != null && !avisoAtualizar.getTitulo().trim().isEmpty()) {
-            existente.setTitulo(avisoAtualizar.getTitulo());
-        }
-        if (avisoAtualizar.getConteudo() != null && !avisoAtualizar.getConteudo().trim().isEmpty()) {
-            existente.setConteudo(avisoAtualizar.getConteudo());
-        }
+        AvisosMuralIcol salvo = repoAvisos.save(avisoCadastrar);
+        return toDTO(salvo);
+    }
+
+    public AvisoMuralResponseDTO atualizar(Long id, AvisoMuralRequestDTO dto) {
+        AvisosMuralIcol existente = buscarEntidade(id);
         
-        return repoAvisos.save(existente);
+        existente.setTitulo(dto.getTitulo());
+        existente.setConteudo(dto.getConteudo());
+        
+        AvisosMuralIcol salvo = repoAvisos.save(existente);
+        return toDTO(salvo);
     }
 
     public void deletar(Long id) {
